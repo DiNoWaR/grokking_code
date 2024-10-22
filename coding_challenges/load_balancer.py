@@ -15,10 +15,12 @@ class LoadBalancer:
         with self.lock:
             if server_id not in self.storage:
                 raise RuntimeError(f"No such server: {server_id}")
+            del self.storage[server_id]
+
+            if len(self.storage) == 0:
+                self.current_index = 0
             else:
-                del self.storage[server_id]
-                if self.current_index >= len(self.storage):
-                    self.current_index = 0
+                self.current_index %= len(self.storage)
 
     def get_server(self) -> (str, int):
         with self.lock:
